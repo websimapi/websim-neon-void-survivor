@@ -2,8 +2,9 @@ import { jsxDEV } from "react/jsx-dev-runtime";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import nipplejs from "nipplejs";
 import { ASSETS } from "./assets.js";
-const GAME_WIDTH = 800;
-const GAME_HEIGHT = 1200;
+const VIEW_WIDTH = 800;
+const VIEW_HEIGHT = 1200;
+const WORLD_SIZE = 4e3;
 class Particle {
   constructor(x, y, color, speed, size, life) {
     this.x = x;
@@ -26,8 +27,8 @@ const Game = ({ upgrades, onGameOver }) => {
   const canvasRef = useRef(null);
   const stateRef = useRef({
     player: {
-      x: GAME_WIDTH / 2,
-      y: GAME_HEIGHT / 2,
+      x: WORLD_SIZE / 2,
+      y: WORLD_SIZE / 2,
       vx: 0,
       vy: 0,
       radius: 25,
@@ -37,11 +38,13 @@ const Game = ({ upgrades, onGameOver }) => {
       friction: 0.92,
       angle: -Math.PI / 2
     },
+    camera: { x: 0, y: 0 },
     enemies: [],
     bullets: [],
     particles: [],
     pickups: [],
     keys: {},
+    pointer: { x: 0, y: 0, active: false },
     goldEarned: 0,
     xp: 0,
     level: 1,
@@ -68,28 +71,19 @@ const Game = ({ upgrades, onGameOver }) => {
     });
   };
   const spawnEnemy = useCallback(() => {
-    const side = Math.floor(Math.random() * 4);
-    let x, y;
-    if (side === 0) {
-      x = Math.random() * GAME_WIDTH;
-      y = -50;
-    } else if (side === 1) {
-      x = GAME_WIDTH + 50;
-      y = Math.random() * GAME_HEIGHT;
-    } else if (side === 2) {
-      x = Math.random() * GAME_WIDTH;
-      y = GAME_HEIGHT + 50;
-    } else {
-      x = -50;
-      y = Math.random() * GAME_HEIGHT;
-    }
-    const levelMult = 1 + (stateRef.current.level - 1) * 0.2;
-    stateRef.current.enemies.push({
+    const s = stateRef.current;
+    const p = s.player;
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 700 + Math.random() * 200;
+    const x = p.x + Math.cos(angle) * dist;
+    const y = p.y + Math.sin(angle) * dist;
+    const levelMult = 1 + (s.level - 1) * 0.2;
+    s.enemies.push({
       x,
       y,
       hp: 15 * levelMult,
       maxHp: 15 * levelMult,
-      speed: 2 + Math.random() * 2 + stateRef.current.level * 0.1,
+      speed: 2 + Math.random() * 2 + s.level * 0.1,
       radius: 20
     });
   }, []);
@@ -105,6 +99,14 @@ const Game = ({ upgrades, onGameOver }) => {
     if (s.joyData) {
       ax = s.joyData.vector.x;
       ay = -s.joyData.vector.y;
+    } else if (s.pointer.active) {
+      const dx = s.pointer.x - VIEW_WIDTH / 2;
+      const dy = s.pointer.y - VIEW_HEIGHT / 2;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist > 20) {
+        ax = dx / dist;
+        ay = dy / dist;
+      }
     }
     if (ax !== 0 || ay !== 0) {
       const mag = Math.sqrt(ax * ax + ay * ay);
@@ -119,8 +121,10 @@ const Game = ({ upgrades, onGameOver }) => {
     p.y += p.vy;
     p.vx *= p.friction;
     p.vy *= p.friction;
-    p.x = Math.max(p.radius, Math.min(GAME_WIDTH - p.radius, p.x));
-    p.y = Math.max(p.radius, Math.min(GAME_HEIGHT - p.radius, p.y));
+    p.x = Math.max(p.radius, Math.min(WORLD_SIZE - p.radius, p.x));
+    p.y = Math.max(p.radius, Math.min(WORLD_SIZE - p.radius, p.y));
+    s.camera.x = p.x - VIEW_WIDTH / 2;
+    s.camera.y = p.y - VIEW_HEIGHT / 2;
     const fireRate = Math.max(4, 18 - upgrades.fireRate * 2);
     if (s.timer - s.lastShot > fireRate) {
       const spread = 0.05;
@@ -139,7 +143,9 @@ const Game = ({ upgrades, onGameOver }) => {
     s.bullets = s.bullets.filter((b) => {
       b.x += b.vx;
       b.y += b.vy;
-      return b.x > -50 && b.x < GAME_WIDTH + 50 && b.y > -50 && b.y < GAME_HEIGHT + 50;
+      const dx = b.x - p.x;
+      const dy = b.y - p.y;
+      return dx * dx + dy * dy < 16e5;
     });
     const spawnRate = Math.max(10, 60 - s.level * 3);
     if (s.timer % spawnRate === 0) spawnEnemy();
@@ -214,6 +220,7 @@ const Game = ({ upgrades, onGameOver }) => {
     if (s.timer % 2 === 0) {
       s.replay.push({
         player: { x: p.x, y: p.y, angle: p.angle, hp: p.hp, maxHp: p.maxHp },
+        camera: { x: s.camera.x, y: s.camera.y },
         enemies: s.enemies.map((e) => ({ x: e.x, y: e.y, hp: e.hp, maxHp: e.maxHp })),
         bullets: s.bullets.map((b) => ({ x: b.x, y: b.y })),
         pickups: s.pickups.map((pu) => ({ x: pu.x, y: pu.y, type: pu.type })),
@@ -242,16 +249,27 @@ const Game = ({ upgrades, onGameOver }) => {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     const s = stateRef.current;
+    const cam = s.camera;
     ctx.save();
     if (s.shake > 1) {
       ctx.translate((Math.random() - 0.5) * s.shake, (Math.random() - 0.5) * s.shake);
     }
-    ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    ctx.clearRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
     if (s.images.bg) {
+      ctx.save();
       ctx.globalAlpha = 0.3;
-      ctx.drawImage(s.images.bg, 0, 0, GAME_WIDTH, GAME_HEIGHT);
-      ctx.globalAlpha = 1;
+      const bgSize = 1e3;
+      const startX = Math.floor(cam.x / bgSize) * bgSize;
+      const startY = Math.floor(cam.y / bgSize) * bgSize;
+      for (let x = startX; x < cam.x + VIEW_WIDTH + bgSize; x += bgSize) {
+        for (let y = startY; y < cam.y + VIEW_HEIGHT + bgSize; y += bgSize) {
+          ctx.drawImage(s.images.bg, x - cam.x, y - cam.y, bgSize, bgSize);
+        }
+      }
+      ctx.restore();
     }
+    ctx.save();
+    ctx.translate(-cam.x, -cam.y);
     s.pickups.forEach((pu) => {
       const img = s.images[pu.type];
       if (img) {
@@ -298,6 +316,7 @@ const Game = ({ upgrades, onGameOver }) => {
       ctx.restore();
     }
     ctx.restore();
+    ctx.restore();
     ctx.fillStyle = "#fff";
     ctx.font = "bold 35px monospace";
     ctx.textAlign = "left";
@@ -305,19 +324,41 @@ const Game = ({ upgrades, onGameOver }) => {
     ctx.fillStyle = "#ff0";
     ctx.fillText(`GOLD ${Math.floor(s.goldEarned)}`, 30, 95);
     ctx.fillStyle = "rgba(0,0,0,0.5)";
-    ctx.fillRect(GAME_WIDTH / 2 - 150, 20, 300, 30);
+    ctx.fillRect(VIEW_WIDTH / 2 - 150, 20, 300, 30);
     ctx.fillStyle = "#f00";
     const hpPct = Math.max(0, s.player.hp / s.player.maxHp);
-    ctx.fillRect(GAME_WIDTH / 2 - 150, 20, 300 * hpPct, 30);
+    ctx.fillRect(VIEW_WIDTH / 2 - 150, 20, 300 * hpPct, 30);
     ctx.strokeStyle = "#fff";
     ctx.lineWidth = 2;
-    ctx.strokeRect(GAME_WIDTH / 2 - 150, 20, 300, 30);
+    ctx.strokeRect(VIEW_WIDTH / 2 - 150, 20, 300, 30);
   };
   useEffect(() => {
     const handleKeyDown = (e) => stateRef.current.keys[e.key] = true;
     const handleKeyUp = (e) => stateRef.current.keys[e.key] = false;
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
+    const handlePointerMove = (e) => {
+      const rect = canvasRef.current.getBoundingClientRect();
+      const scaleX = VIEW_WIDTH / rect.width;
+      const scaleY = VIEW_HEIGHT / rect.height;
+      const x = (e.clientX || e.touches && e.touches[0].clientX) - rect.left;
+      const y = (e.clientY || e.touches && e.touches[0].clientY) - rect.top;
+      stateRef.current.pointer = { x: x * scaleX, y: y * scaleY, active: true };
+    };
+    const handlePointerDown = (e) => {
+      stateRef.current.pointer.active = true;
+      handlePointerMove(e);
+    };
+    const handlePointerUp = () => {
+      stateRef.current.pointer.active = false;
+    };
+    const canvas = canvasRef.current;
+    canvas.addEventListener("mousemove", handlePointerMove);
+    canvas.addEventListener("mousedown", handlePointerDown);
+    window.addEventListener("mouseup", handlePointerUp);
+    canvas.addEventListener("touchmove", handlePointerMove, { passive: false });
+    canvas.addEventListener("touchstart", handlePointerDown, { passive: false });
+    window.addEventListener("touchend", handlePointerUp);
     const joystick = nipplejs.create({
       zone: document.getElementById("joystick-zone"),
       mode: "static",
@@ -334,6 +375,12 @@ const Game = ({ upgrades, onGameOver }) => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
+      canvas.removeEventListener("mousemove", handlePointerMove);
+      canvas.removeEventListener("mousedown", handlePointerDown);
+      window.removeEventListener("mouseup", handlePointerUp);
+      canvas.removeEventListener("touchmove", handlePointerMove);
+      canvas.removeEventListener("touchstart", handlePointerDown);
+      window.removeEventListener("touchend", handlePointerUp);
       cancelAnimationFrame(requestRef.current);
       joystick.destroy();
     };
@@ -343,26 +390,26 @@ const Game = ({ upgrades, onGameOver }) => {
       "canvas",
       {
         ref: canvasRef,
-        width: GAME_WIDTH,
-        height: GAME_HEIGHT,
+        width: VIEW_WIDTH,
+        height: VIEW_HEIGHT,
         style: { height: "100%", maxHeight: "100vh", width: "auto", background: "#050505", display: "block" }
       },
       void 0,
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 403,
+        lineNumber: 466,
         columnNumber: 7
       }
     ),
     /* @__PURE__ */ jsxDEV("div", { id: "joystick-zone", style: { position: "absolute", left: 0, bottom: 0, width: "200px", height: "300px", zIndex: 1e3 } }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 409,
+      lineNumber: 472,
       columnNumber: 7
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 402,
+    lineNumber: 465,
     columnNumber: 5
   });
 };
