@@ -46,106 +46,128 @@ const Main = () => {
     height: "100%",
     position: "relative",
     background: "#000",
-    backgroundImage: `url(${ASSETS.images.bg})`,
-    backgroundSize: "cover"
+    backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${ASSETS.images.bg})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center"
   }, children: [
     view === "menu" && /* @__PURE__ */ jsxDEV("div", { style: overlayStyle, children: [
       /* @__PURE__ */ jsxDEV("h1", { style: titleStyle, children: "NEON VOID" }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 60,
-        columnNumber: 11
-      }),
-      /* @__PURE__ */ jsxDEV("button", { style: buttonStyle, onClick: startGame, children: "START RUN" }, void 0, false, {
-        fileName: "<stdin>",
         lineNumber: 61,
         columnNumber: 11
       }),
-      /* @__PURE__ */ jsxDEV("button", { style: buttonSecondaryStyle, onClick: () => setView("shop"), children: "SHOP" }, void 0, false, {
+      /* @__PURE__ */ jsxDEV("div", { style: { display: "flex", flexDirection: "column", gap: "10px", width: "80%", maxWidth: "300px" }, children: [
+        /* @__PURE__ */ jsxDEV("button", { style: buttonStyle, onClick: startGame, children: "START RUN" }, void 0, false, {
+          fileName: "<stdin>",
+          lineNumber: 63,
+          columnNumber: 13
+        }),
+        /* @__PURE__ */ jsxDEV("button", { style: buttonSecondaryStyle, onClick: () => setView("shop"), children: "SHOP" }, void 0, false, {
+          fileName: "<stdin>",
+          lineNumber: 64,
+          columnNumber: 13
+        })
+      ] }, void 0, true, {
         fileName: "<stdin>",
         lineNumber: 62,
         columnNumber: 11
       }),
       /* @__PURE__ */ jsxDEV("div", { style: statsBoxStyle, children: [
-        "Gold: ",
+        "BANKED GOLD: ",
         gold
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 63,
+        lineNumber: 66,
         columnNumber: 11
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 59,
+      lineNumber: 60,
       columnNumber: 9
     }),
     view === "playing" && /* @__PURE__ */ jsxDEV(Game, { upgrades, onGameOver }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 68,
+      lineNumber: 71,
       columnNumber: 9
     }),
     view === "shop" && /* @__PURE__ */ jsxDEV(Shop, { gold, upgrades, onBuy: buyUpgrade, onBack: () => setView("menu") }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 72,
+      lineNumber: 75,
       columnNumber: 9
     }),
     view === "gameover" && /* @__PURE__ */ jsxDEV("div", { style: overlayStyle, children: [
-      /* @__PURE__ */ jsxDEV("h2", { style: { ...titleStyle, fontSize: "3rem", color: "#ff4444" }, children: "VOIDED" }, void 0, false, {
+      /* @__PURE__ */ jsxDEV("h2", { style: { ...titleStyle, fontSize: "3.5rem", color: "#ff4444" }, children: "VOIDED" }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 77,
+        lineNumber: 80,
         columnNumber: 11
       }),
       /* @__PURE__ */ jsxDEV("div", { style: statsSummaryStyle, children: [
-        /* @__PURE__ */ jsxDEV("p", { children: [
-          "Level Reached: ",
+        /* @__PURE__ */ jsxDEV("div", { style: { color: "#0ff", fontSize: "1.5rem", marginBottom: "5px" }, children: [
+          "LEVEL ",
           stats.level
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 79,
+          lineNumber: 82,
           columnNumber: 13
         }),
-        /* @__PURE__ */ jsxDEV("p", { children: [
-          "Gold Earned: +",
+        /* @__PURE__ */ jsxDEV("div", { children: [
+          "GOLD COLLECTED: +",
           stats.goldEarned
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 80,
+          lineNumber: 83,
           columnNumber: 13
         }),
-        /* @__PURE__ */ jsxDEV("p", { children: [
-          "Enemies Defeated: ",
+        /* @__PURE__ */ jsxDEV("div", { children: [
+          "KILLS: ",
           stats.kills
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 81,
+          lineNumber: 84,
           columnNumber: 13
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 78,
+        lineNumber: 81,
         columnNumber: 11
       }),
-      /* @__PURE__ */ jsxDEV("button", { style: buttonStyle, onClick: startGame, children: "RETRY" }, void 0, false, {
+      /* @__PURE__ */ jsxDEV("div", { style: { display: "flex", flexDirection: "column", gap: "10px", width: "80%", maxWidth: "300px" }, children: [
+        /* @__PURE__ */ jsxDEV("button", { style: buttonStyle, onClick: startGame, children: "RETRY" }, void 0, false, {
+          fileName: "<stdin>",
+          lineNumber: 87,
+          columnNumber: 13
+        }),
+        /* @__PURE__ */ jsxDEV("button", { style: buttonSecondaryStyle, onClick: () => setView("replay"), children: "WATCH REPLAY" }, void 0, false, {
+          fileName: "<stdin>",
+          lineNumber: 88,
+          columnNumber: 13
+        }),
+        /* @__PURE__ */ jsxDEV("button", { style: buttonSecondaryStyle, onClick: () => setView("menu"), children: "MAIN MENU" }, void 0, false, {
+          fileName: "<stdin>",
+          lineNumber: 89,
+          columnNumber: 13
+        })
+      ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 83,
-        columnNumber: 11
-      }),
-      /* @__PURE__ */ jsxDEV("button", { style: buttonSecondaryStyle, onClick: () => setView("replay"), children: "WATCH REPLAY" }, void 0, false, {
-        fileName: "<stdin>",
-        lineNumber: 84,
-        columnNumber: 11
-      }),
-      /* @__PURE__ */ jsxDEV("button", { style: buttonSecondaryStyle, onClick: () => setView("menu"), children: "MAIN MENU" }, void 0, false, {
-        fileName: "<stdin>",
-        lineNumber: 85,
+        lineNumber: 86,
         columnNumber: 11
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 76,
+      lineNumber: 79,
       columnNumber: 9
     }),
     view === "replay" && lastReplay && /* @__PURE__ */ jsxDEV("div", { style: overlayStyle, children: [
-      /* @__PURE__ */ jsxDEV("div", { style: { width: "90%", height: "70%", borderRadius: "10px", overflow: "hidden", border: "2px solid #0ff" }, children: /* @__PURE__ */ jsxDEV(
+      /* @__PURE__ */ jsxDEV("div", { style: {
+        width: "95%",
+        height: "80%",
+        maxHeight: "80vh",
+        borderRadius: "15px",
+        overflow: "hidden",
+        border: "3px solid #0ff",
+        background: "#000",
+        boxShadow: "0 0 30px rgba(0,255,255,0.3)"
+      }, children: /* @__PURE__ */ jsxDEV(
         Player,
         {
           component: ReplayComposition,
@@ -156,28 +178,29 @@ const Main = () => {
           inputProps: { frames: lastReplay },
           autoplay: true,
           loop: true,
+          controls: true,
           style: { width: "100%", height: "100%" }
         },
         void 0,
         false,
         {
           fileName: "<stdin>",
-          lineNumber: 92,
+          lineNumber: 106,
           columnNumber: 13
         }
       ) }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 91,
+        lineNumber: 96,
         columnNumber: 11
       }),
-      /* @__PURE__ */ jsxDEV("button", { style: { ...buttonStyle, marginTop: "20px" }, onClick: () => setView("gameover"), children: "BACK" }, void 0, false, {
+      /* @__PURE__ */ jsxDEV("button", { style: { ...buttonStyle, marginTop: "20px", minWidth: "200px" }, onClick: () => setView("gameover"), children: "BACK" }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 104,
+        lineNumber: 119,
         columnNumber: 11
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 90,
+      lineNumber: 95,
       columnNumber: 9
     })
   ] }, void 0, true, {
@@ -196,51 +219,60 @@ const overlayStyle = {
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
-  background: "rgba(0,0,0,0.8)",
-  zIndex: 100
+  background: "rgba(0,0,0,0.85)",
+  zIndex: 100,
+  padding: "20px"
 };
 const titleStyle = {
-  fontSize: "4rem",
+  fontSize: "3.5rem",
   fontWeight: "bold",
   color: "#0ff",
-  textShadow: "0 0 20px #0ff",
+  textShadow: "0 0 15px #0ff, 0 0 30px #0ff",
   marginBottom: "40px",
-  letterSpacing: "8px"
+  letterSpacing: "4px",
+  textAlign: "center"
 };
 const buttonStyle = {
-  padding: "15px 40px",
-  fontSize: "1.5rem",
+  padding: "18px 0",
+  fontSize: "1.2rem",
   background: "#0ff",
   border: "none",
-  borderRadius: "5px",
+  borderRadius: "8px",
   color: "#000",
   fontWeight: "bold",
   cursor: "pointer",
-  marginBottom: "15px",
-  minWidth: "250px",
-  boxShadow: "0 0 15px #0ff"
+  width: "100%",
+  boxShadow: "0 0 20px rgba(0,255,255,0.4)",
+  transition: "all 0.2s"
 };
 const buttonSecondaryStyle = {
   ...buttonStyle,
   background: "transparent",
   color: "#0ff",
   border: "2px solid #0ff",
-  boxShadow: "none"
+  boxShadow: "none",
+  marginTop: "5px"
 };
 const statsBoxStyle = {
-  marginTop: "20px",
-  fontSize: "1.2rem",
-  color: "#ff0"
+  marginTop: "30px",
+  fontSize: "1.1rem",
+  color: "#ff0",
+  fontWeight: "bold",
+  textShadow: "0 0 5px rgba(255,255,0,0.5)"
 };
 const statsSummaryStyle = {
-  fontSize: "1.3rem",
+  fontSize: "1.1rem",
   textAlign: "center",
   marginBottom: "30px",
   color: "#fff",
-  lineHeight: "1.6"
+  lineHeight: "1.8",
+  background: "rgba(255,255,255,0.05)",
+  padding: "20px 40px",
+  borderRadius: "15px",
+  border: "1px solid rgba(255,255,255,0.1)"
 };
 createRoot(document.getElementById("app")).render(/* @__PURE__ */ jsxDEV(Main, {}, void 0, false, {
   fileName: "<stdin>",
-  lineNumber: 165,
+  lineNumber: 189,
   columnNumber: 51
 }));

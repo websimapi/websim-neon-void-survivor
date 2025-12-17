@@ -32,6 +32,7 @@
       color: #fff;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       overflow: hidden;
+      touch-action: none;
     }
     #app {
       width: 100%;
@@ -42,6 +43,10 @@
     * {
       box-sizing: border-box;
       user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    canvas {
+      image-rendering: pixelated;
     }
   </style>
 </head>
